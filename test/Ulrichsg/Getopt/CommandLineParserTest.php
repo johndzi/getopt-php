@@ -303,4 +303,17 @@ class CommandLineParserTest extends \PHPUnit_Framework_TestCase
         $parser = new CommandLineParser(array($option));
         $parser->parse('-a nonnumeric');
     }
+
+    public function testCustomParser()
+    {
+        $parser = new CommandLineParser(array(
+            new Option('a', 'aoption', Getopt::REQUIRED_ARGUMENT, function ($value) {
+                return explode('|', $value);
+            }),
+        ));
+
+        $parser->parse('--aoption asdf|fdsa');
+        $options = $parser->getOptions();
+        $this->assertEquals(array('asdf', 'fdsa'), $options['a']);
+    }
 }

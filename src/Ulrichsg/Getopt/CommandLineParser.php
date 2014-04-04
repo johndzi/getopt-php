@@ -168,10 +168,10 @@ class CommandLineParser
                 $value = (mb_strlen($value) > 0) ? $value : 1;
                 // add both long and short names (if they exist) to the option array to facilitate lookup
                 if ($option->short()) {
-                    $this->options[$option->short()] = $value;
+                    $this->options[$option->short()] = $option->parse($value);
                 }
                 if ($option->long()) {
-                    $this->options[$option->long()] = $value;
+                    $this->options[$option->long()] = $option->parse($value);
                 }
                 return;
             }

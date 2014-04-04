@@ -12,6 +12,7 @@ class Option
     private $mode;
     private $description = '';
     private $argument;
+    private $parser;
 
     /**
      * Creates a new option.
@@ -23,7 +24,7 @@ class Option
      *                  (optional, defaults to no argument)
      * @throws \InvalidArgumentException if both short and long name are null
      */
-    public function __construct($short, $long, $mode = Getopt::NO_ARGUMENT)
+    public function __construct($short, $long, $mode = Getopt::NO_ARGUMENT, $parser = null)
     {
         if (!$short && !$long) {
             throw new \InvalidArgumentException("The short and long name may not both be empty");
@@ -32,6 +33,13 @@ class Option
         $this->setLong($long);
         $this->setMode($mode);
         $this->argument = new Argument();
+        if (is_callable($parser)) {
+            $this->parser = $parser;
+        } else {
+            $this->parser = function ($value) {
+                return $value;
+            };
+        }
     }
 
     /**
@@ -149,5 +157,10 @@ class Option
                 ."Getopt::NO_ARGUMENT, Getopt::OPTIONAL_ARGUMENT and Getopt::REQUIRED_ARGUMENT");
         }
         $this->mode = $mode;
+    }
+
+    public function parse($value) {
+        $parser = $this->parser;
+        return $parser($value);
     }
 }
