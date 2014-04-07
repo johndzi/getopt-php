@@ -161,22 +161,44 @@ class CommandLineParser
                 }
                 // for no-argument options, check if they are duplicate
                 if ($option->mode() == Getopt::NO_ARGUMENT) {
-                    $oldValue = isset($this->options[$string]) ? $this->options[$string] : null;
-                    $value = is_null($oldValue) ? 1 : $oldValue + 1;
+                    $value = 1;
                 }
                 // for optional-argument options, set value to 1 if none was given
                 $value = (mb_strlen($value) > 0) ? $value : 1;
                 // add both long and short names (if they exist) to the option array to facilitate lookup
                 if ($option->short()) {
-                    $this->options[$option->short()] = $option->parse($value);
+                    $this->setOption($option->short(), $option->parse($value));
                 }
                 if ($option->long()) {
-                    $this->options[$option->long()] = $option->parse($value);
+                    $this->setOption($option->long(), $option->parse($value));
                 }
                 return;
             }
         }
         throw new \UnexpectedValueException("Option '$string' is unknown");
+    }
+    private function setOption($string, $value) {
+        if (!array_key_exists($string, $this->options)) {
+            $this->options[$string] = $value;
+            return $this;
+        }
+
+        if (is_numeric($this->options[$string])) {
+            if (is_numeric($value)) {
+                if (intval($value) == floatval($value)) {
+                    $value = intval($value);
+                } else {
+                    $value = floatval($value);
+                }
+                $this->options[$string] += $value;
+                return $this;
+            }
+        }
+
+        if (!is_array($this->options[$string])) {
+            $this->options[$string] = array($this->options[$string]);
+        }
+        $this->options[$string][] = $value;
     }
 
     /**

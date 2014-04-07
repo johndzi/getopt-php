@@ -256,8 +256,8 @@ class CommandLineParserTest extends \PHPUnit_Framework_TestCase
 
         $options = $parser->getOptions();
         $this->assertEquals(12, $options['a']);
-        $this->assertEquals(20, $options['b']);
-        $this->assertEquals(20, $options['beta']);
+        $this->assertEquals(40, $options['b']);
+        $this->assertEquals(40, $options['beta']);
     }
 
     public function testDoubleHyphenNotInOperands()
@@ -315,5 +315,17 @@ class CommandLineParserTest extends \PHPUnit_Framework_TestCase
         $parser->parse('--aoption asdf|fdsa');
         $options = $parser->getOptions();
         $this->assertEquals(array('asdf', 'fdsa'), $options['a']);
+    }
+
+    public function testOptionAddition() {
+        $parser = new CommandLineParser(array(
+            new Option('a', 'aoption', Getopt::REQUIRED_ARGUMENT),
+            new Option('b', 'boption', Getopt::REQUIRED_ARGUMENT),
+        ));
+
+        $parser->parse('-a 10 --aoption 12 -b blah --boption blam');
+        $options = $parser->getOptions();
+        $this->assertEquals(22, $options['a']);
+        $this->assertEquals(array('blah', 'blam'), $options['b']);
     }
 }
